@@ -3,504 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROSRCH MK-1 // TERMINAL</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>SOLANA // INDUSTRIAL AUTOMATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #00ff41; /* Hacker Green */
-            --secondary: #00f3ff; /* Cyber Cyan */
-            --alert: #ff2a2a;
-            --bg: #050505;
-            --scanline: rgba(0, 0, 0, 0.5);
-            --glass: rgba(0, 255, 65, 0.05);
+            /* Palette based on the Industrial Orange reference */
+            --industrial-orange: #FF3B00; 
+            --deep-black: #080808;
+            --panel-grey: #121212;
+            --text-main: #Eaeaea;
+            --text-muted: #555;
+            --signal-beam: #ffffff;
         }
 
         * {
             box-sizing: border-box;
-            user-select: none;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-            color: var(--primary);
-            font-family: 'Share Tech Mono', monospace;
-            overflow: hidden;
+            background-color: var(--deep-black);
+            color: var(--text-main);
+            font-family: 'Archivo', sans-serif;
             height: 100vh;
             width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- 3D BACKGROUND --- */
-        #canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            opacity: 0.8;
-        }
-
-        /* --- CRT OVERLAY EFFECTS --- */
-        .crt-overlay {
+        /* --- NOISE TEXTURE OVERLAY --- */
+        .noise-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 100;
-            pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
-            animation: flicker 0.15s infinite;
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.97; }
-            5% { opacity: 0.95; }
-            10% { opacity: 0.9; }
-            15% { opacity: 0.95; }
-            100% { opacity: 0.97; }
-        }
-
-        /* --- UI LAYOUT --- */
-        #ui-layer {
-            position: relative;
-            z-index: 10;
             width: 100%;
             height: 100%;
+            pointer-events: none;
+            opacity: 0.05;
+            z-index: 999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- LAYOUT GRID --- */
+        .main-grid {
             display: grid;
-            grid-template-columns: 250px 1fr 250px;
-            grid-template-rows: 100px 1fr 100px;
-            padding: 20px;
+            grid-template-columns: 250px 1fr 300px;
+            grid-template-rows: 80px 1fr 60px;
+            height: 100%;
+            width: 100%;
+            border: 10px solid var(--deep-black);
+            gap: 2px;
+            background-color: var(--panel-grey); /* Gaps become border lines */
         }
 
-        /* --- BORDERS & CORNERS --- */
         .panel {
-            border: 1px solid rgba(0, 255, 65, 0.3);
+            background-color: var(--deep-black);
+            padding: 20px;
             position: relative;
-            background: rgba(0, 10, 0, 0.4);
-            backdrop-filter: blur(2px);
-        }
-
-        .corner-brackets::before, .corner-brackets::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary);
-            transition: all 0.3s ease;
-        }
-
-        .corner-brackets::before { top: -2px; left: -2px; border-bottom: none; border-right: none; }
-        .corner-brackets::after { bottom: -2px; right: -2px; border-top: none; border-left: none; }
-
-        /* --- CENTER MODULE --- */
-        .center-stage {
-            grid-column: 2;
-            grid-row: 2;
             display: flex;
             flex-direction: column;
+        }
+
+        /* --- HEADER SECTION --- */
+        .header-left {
+            grid-column: 1;
+            grid-row: 1;
+            border-bottom: 2px solid var(--industrial-orange);
+            justify-content: center;
+        }
+
+        .header-main {
+            grid-column: 2;
+            grid-row: 1;
+            border-bottom: 2px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .header-right {
+            grid-column: 3;
+            grid-row: 1;
+            background-color: var(--industrial-orange);
+            color: var(--deep-black);
+            display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
+            font-weight: 900;
+            font-size: 2rem;
+            letter-spacing: -1px;
+        }
+
+        /* --- DRAGONFLY LOGO AREA (CENTER) --- */
+        .stage-center {
+            grid-column: 2;
+            grid-row: 2;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        h1.title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4rem;
-            margin: 0 0 20px 0;
-            color: var(--primary);
-            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            position: relative;
-        }
-
-        h1.title::after {
-            content: "Autonomous Solana Bot";
-            display: block;
-            font-size: 0.8rem;
-            letter-spacing: 10px;
-            opacity: 0.7;
-            margin-top: 5px;
-            font-family: 'Share Tech Mono', monospace;
-            color: var(--secondary);
-        }
-
-        /* --- DROPDOWN STYLING --- */
-        .select-container {
-            position: relative;
-            width: 300px;
-            margin-top: 30px;
-        }
-
-        .custom-select {
-            width: 100%;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            outline: none;
-            cursor: pointer;
-            appearance: none;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-            transition: all 0.3s;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-        }
-
-        .custom-select:hover {
-            background: rgba(0, 243, 255, 0.1);
-            box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
-            letter-spacing: 2px;
-        }
-
-        .select-arrow {
+        /* The Signal Beam */
+        .signal-beam-container {
             position: absolute;
-            top: 50%;
-            right: 20px;
+            top: 45%;
+            left: 0;
+            width: 100%;
+            height: 200px; /* Space for the logo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transform: translateY(-50%);
-            width: 0; 
-            height: 0; 
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 6px solid var(--secondary);
+        }
+
+        .signal-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--signal-beam) 20%, var(--signal-beam) 80%, transparent 100%);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            z-index: 1;
+        }
+
+        /* Dragonfly SVG */
+        #dragonfly-svg {
+            width: 180px;
+            height: 180px;
+            z-index: 10;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .brand-text {
+            font-family: 'Archivo', sans-serif;
+            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--industrial-orange);
+        }
+
+        .heavy-title {
+            font-size: 4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 0.9;
+            color: var(--text-main);
+            margin-top: 100px; /* Push below logo */
+            z-index: 5;
+            text-align: center;
+            letter-spacing: -2px;
+        }
+
+        .mono-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* --- DROPDOWN CONTROL --- */
+        .control-wrapper {
+            margin-top: 40px;
+            z-index: 20;
+            width: 320px;
+        }
+
+        .industrial-select-wrap {
+            position: relative;
+            background: var(--panel-grey);
+            border: 1px solid var(--text-muted);
+        }
+
+        .industrial-select {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            text-transform: uppercase;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .industrial-select:focus {
+            border: 1px solid var(--industrial-orange);
+        }
+
+        .select-corner {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 0 15px 15px;
+            border-color: transparent transparent var(--industrial-orange) transparent;
             pointer-events: none;
         }
 
-        /* --- MAXIMALIST DECORATIONS --- */
-        .hud-top-left {
-            grid-column: 1;
-            grid-row: 1;
-            border-bottom: 2px solid var(--primary);
-        }
-
-        .hud-top-right {
-            grid-column: 3;
-            grid-row: 1;
-            text-align: right;
-            border-bottom: 2px solid var(--primary);
-        }
-
-        .hud-sidebar-left {
+        /* --- SIDEBARS --- */
+        .sidebar-left {
             grid-column: 1;
             grid-row: 2;
-            padding-right: 20px;
+            padding: 40px 20px;
+            border-right: 1px dashed var(--text-muted);
+        }
+
+        .sidebar-right {
+            grid-column: 3;
+            grid-row: 2;
+            background-color: #0c0c0c;
+            padding: 0;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+        }
+
+        .stat-box {
+            border-bottom: 1px solid var(--text-muted);
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .stat-change {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--industrial-orange);
             font-size: 0.8rem;
-            opacity: 0.8;
         }
 
-        .hud-sidebar-right {
-            grid-column: 3;
-            grid-row: 2;
-            padding-left: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-        }
-
-        .data-block {
-            margin-bottom: 20px;
-        }
-
-        .data-header {
-            color: var(--secondary);
-            border-bottom: 1px dashed var(--secondary);
-            margin-bottom: 5px;
-            display: inline-block;
-        }
-
-        .random-hex {
-            font-size: 0.7rem;
-            line-height: 1.2;
-            color: rgba(0, 255, 65, 0.7);
-            word-break: break-all;
-        }
-
-        .hud-bottom {
+        /* --- FOOTER --- */
+        .footer-bar {
             grid-column: 1 / span 3;
             grid-row: 3;
+            background-color: var(--text-main);
+            color: var(--deep-black);
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
-            border-top: 2px solid var(--primary);
-            padding-top: 10px;
+            padding: 0 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
         }
 
-        /* --- ANIMATED BARS --- */
-        .bar-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 2px;
-            height: 50px;
+        /* --- ANIMATIONS --- */
+        .blink {
+            animation: blinker 2s linear infinite;
         }
-        .bar {
-            width: 8px;
-            background: var(--primary);
-            opacity: 0.5;
-            animation: barAnim 1s infinite alternate;
-        }
-        @keyframes barAnim {
-            0% { height: 10%; opacity: 0.3; }
-            100% { height: 100%; opacity: 0.8; }
+        @keyframes blinker {
+            50% { opacity: 0; }
         }
 
-        /* --- CROSSHAIRS --- */
-        .crosshair {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            pointer-events: none;
-        }
-        .crosshair::before, .crosshair::after {
-            content: '';
-            position: absolute;
-            background: var(--alert);
-        }
-        .crosshair::before { top: 50%; left: 0; width: 100%; height: 1px; }
-        .crosshair::after { left: 50%; top: 0; height: 100%; width: 1px; }
-
-        .blinking {
-            animation: blink 1s infinite;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        /* --- RESPONSIVE --- */
-        @media (max-width: 768px) {
-            #ui-layer {
-                grid-template-columns: 50px 1fr 50px;
-            }
-            h1.title { font-size: 2.5rem; }
-            .hud-sidebar-left, .hud-sidebar-right { font-size: 0.6rem; }
-            .select-container { width: 220px; }
+        .scrolling-text {
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
         }
 
     </style>
 </head>
 <body>
 
-    <!-- THREE.JS CANVAS -->
-    <div id="canvas-container"></div>
+    <div class="noise-overlay"></div>
 
-    <!-- CRT EFFECT OVERLAY -->
-    <div class="crt-overlay"></div>
-
-    <!-- UI LAYER -->
-    <div id="ui-layer">
-
-        <!-- Top Left Status -->
-        <div class="hud-top-left panel" style="padding: 10px;">
-            <div>SYS.TIME: <span id="clock">00:00:00</span></div>
-            <div style="color: var(--secondary)">NET: CONNECTED</div>
+    <div class="main-grid">
+        
+        <!-- TOP LEFT -->
+        <div class="panel header-left">
+            <span class="brand-text">SOLANA // AUTO</span>
         </div>
 
-        <!-- Top Right Status -->
-        <div class="hud-top-right panel" style="padding: 10px;">
-            <div>LOCATION: ORBIT</div>
-            <div class="blinking" style="color: var(--alert)">[ SECURE ]</div>
-        </div>
-
-        <!-- Left Sidebar Data -->
-        <div class="hud-sidebar-left">
-            <div class="data-block">
-                <div class="data-header">MEMORY DUMP</div>
-                <div class="random-hex" id="hex-stream"></div>
-            </div>
-            <div class="data-block">
-                <div class="data-header">COORDINATES</div>
-                <div>X: <span id="coord-x">45.23</span></div>
-                <div>Y: <span id="coord-y">12.99</span></div>
-                <div>Z: <span id="coord-z">88.11</span></div>
+        <!-- TOP CENTER -->
+        <div class="panel header-main">
+            <span class="mono-label">System Status: <span style="color: var(--industrial-orange)">ONLINE</span></span>
+            <div style="display: flex; gap: 5px;">
+                <div style="width: 10px; height: 10px; background: var(--text-muted);"></div>
+                <div style="width: 10px; height: 10px; background: var(--text-muted);"></div>
+                <div style="width: 10px; height: 10px; background: var(--industrial-orange);"></div>
             </div>
         </div>
 
-        <!-- CENTER CONTENT -->
-        <div class="center-stage">
-            <!-- Decorative Crosshair behind title -->
-            <div class="crosshair"></div>
+        <!-- TOP RIGHT -->
+        <div class="header-right">
+            V 1.2
+        </div>
+
+        <!-- LEFT SIDEBAR -->
+        <div class="panel sidebar-left">
+            <div style="margin-bottom: 40px;">
+                <span class="mono-label">INITIATIVE</span>
+                <h3 style="font-size: 1.5rem; line-height: 1.1;">URBAN<br>ROBOTICS<br>INITIATIVE</h3>
+            </div>
+
+            <div style="margin-bottom: 40px;">
+                <span class="mono-label">TARGET CHAIN</span>
+                <h3 style="font-size: 1.5rem; color: var(--industrial-orange)">SOLANA</h3>
+            </div>
+
+            <div style="margin-top: auto;">
+                <span class="mono-label">WARNING</span>
+                <p style="font-size: 0.7rem; color: #666; margin-top: 5px; line-height: 1.4;">
+                    AUTHORIZED PERSONNEL ONLY. AUTOMATED TRADING PROTOCOLS ARE IRREVERSIBLE.
+                </p>
+            </div>
+        </div>
+
+        <!-- CENTER STAGE (Dragonfly & Controls) -->
+        <div class="panel stage-center">
             
-            <h1 class="title">ROSRCH MK-1</h1>
-            
-            <div class="select-container">
-                <select class="custom-select" id="bot-select">
-                    <option value="" disabled selected>SELECT MODULE</option>
-                    <option value="sniper">>> SNIPER BOT</option>
-                    <option value="buy">>> BUY BOT</option>
-                    <option value="booter">>> BOOTER BOT</option>
-                    <option value="monitor">>> MONITOR</option>
-                </select>
-                <div class="select-arrow"></div>
+            <div class="signal-beam-container">
+                <div class="signal-line"></div>
+                
+                <!-- SVG DRAGONFLY LOGO -->
+                <svg id="dragonfly-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Definitions for metallic gradient -->
+                    <defs>
+                        <linearGradient id="metal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#a0a0a0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#505050;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- The Beam Cutout (Negative Space behind logo) -->
+                    <circle cx="100" cy="100" r="60" fill="var(--deep-black)" />
+
+                    <!-- Geometric Body -->
+                    <!-- Upper Wings -->
+                    <path d="M100 80 L160 50 L150 90 L100 95" fill="none" stroke="url(#metal-grad)" stroke-width="2" />
+                    <path d="M100 80 L40 50 L50 90 L100 95" fill="none" stroke="url(#metal-grad)" stroke-width="2" />
+                    
+                    <!-- Lower Wings -->
+                    <path d="M100 105 L150 140 L140 110 L100 105" fill="none" stroke="url(#metal-grad)" stroke-width="1.5" />
+                    <path d="M100 105 L50 140 L60 110 L100 105" fill="none" stroke="url(#metal-grad)" stroke-width="1.5" />
+
+                    <!-- Central Fuselage (Simple Geometric Shapes) -->
+                    <path d="M100 60 L105 80 L100 140 L95 80 Z" fill="url(#metal-grad)" />
+                    <circle cx="100" cy="55" r="5" fill="#fff" />
+                    
+                    <!-- Minimalist Head Detail -->
+                    <path d="M90 50 L110 50" stroke="#fff" stroke-width="1" />
+                </svg>
             </div>
 
-            <div style="margin-top: 20px; font-size: 0.8rem; color: var(--alert); letter-spacing: 2px;" id="bot-status">
-                WAITING FOR INPUT...
-            </div>
-        </div>
+            <h1 class="heavy-title">INTEGRATE<br>INTELLIGENCE</h1>
 
-        <!-- Right Sidebar Visuals -->
-        <div class="hud-sidebar-right">
-            <div class="data-block">
-                <div class="data-header">LOAD BALANCER</div>
-                <div class="bar-chart">
-                    <div class="bar" style="animation-delay: 0.1s"></div>
-                    <div class="bar" style="animation-delay: 0.3s"></div>
-                    <div class="bar" style="animation-delay: 0.5s"></div>
-                    <div class="bar" style="animation-delay: 0.2s"></div>
-                    <div class="bar" style="animation-delay: 0.7s"></div>
+            <div class="control-wrapper">
+                <span class="mono-label" style="margin-bottom: 10px;">SELECT PROTOCOL</span>
+                <div class="industrial-select-wrap">
+                    <select class="industrial-select" id="bot-select">
+                        <option value="sniper">SNIPER BOT [V.09]</option>
+                        <option value="buy">BUY BOT [MARKET]</option>
+                        <option value="booter">BOOTER BOT [OFFENSE]</option>
+                        <option value="monitor">MONITOR [PASSIVE]</option>
+                    </select>
+                    <div class="select-corner"></div>
+                </div>
+                <div id="status-display" style="margin-top: 15px; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--industrial-orange); height: 20px;">
+                    > SYSTEM IDLE
                 </div>
             </div>
-            <div class="data-block corner-brackets" style="padding: 10px; height: 100px; border: 1px solid rgba(0,255,255,0.2);">
-                 <div style="font-size: 0.7rem;">TARGETING ARRAY</div>
-                 <!-- Simple SVG Graphic -->
-                 <svg width="100%" height="80%">
-                    <circle cx="50%" cy="50%" r="30" stroke="var(--primary)" stroke-width="1" fill="none" />
-                    <line x1="10%" y1="50%" x2="90%" y2="50%" stroke="var(--primary)" stroke-width="1" />
-                    <line x1="50%" y1="10%" x2="50%" y2="90%" stroke="var(--primary)" stroke-width="1" />
-                 </svg>
+
+        </div>
+
+        <!-- RIGHT SIDEBAR (Stats) -->
+        <div class="panel sidebar-right">
+            <div class="stat-box">
+                <span class="mono-label">SOL / USD</span>
+                <div class="stat-value">142.05</div>
+                <div class="stat-change blink">▲ 4.2%</div>
+            </div>
+            <div class="stat-box">
+                <span class="mono-label">NETWORK LOAD</span>
+                <div class="stat-value">48ms</div>
+                <div class="stat-change">OPTIMAL</div>
+            </div>
+            <div class="stat-box" style="border-bottom: none; background: #1a1a1a;">
+                <span class="mono-label">ACTIVE NODES</span>
+                <div class="stat-value" style="color: var(--industrial-orange)">2,401</div>
             </div>
         </div>
 
-        <!-- Bottom Status -->
-        <div class="hud-bottom">
-            <div style="padding-left: 10px;">UID: 899-22-ALPHA</div>
-            <div style="width: 50%; height: 10px; border: 1px solid var(--primary); margin: 0 20px;">
-                <div style="width: 76%; height: 100%; background: var(--primary); animation: load 3s infinite;"></div>
-            </div>
-            <div style="padding-right: 10px;">COPYRIGHT 2088</div>
+        <!-- FOOTER -->
+        <div class="footer-bar">
+            <span>FIELD TESTED // UNIT 884</span>
+            <span class="scrolling-text" style="width: 300px; text-align: right;">
+                AUTOMATE THE WORK THAT BUILT THE NETWORK ///////
+            </span>
         </div>
 
     </div>
 
     <script>
-        /* --- CLOCK & DATA UPDATES --- */
-        function updateData() {
-            // Clock
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toISOString().split('T')[1].split('.')[0];
-
-            // Random Hex Stream
-            let hex = '';
-            const chars = '0123456789ABCDEF';
-            for(let i=0; i<80; i++) {
-                hex += chars[Math.floor(Math.random() * 16)];
-                if(i % 10 === 0 && i !== 0) hex += ' ';
-            }
-            document.getElementById('hex-stream').innerText = hex;
-
-            // Coordinates
-            document.getElementById('coord-x').innerText = (Math.random() * 100).toFixed(2);
-            document.getElementById('coord-y').innerText = (Math.random() * 100).toFixed(2);
-            document.getElementById('coord-z').innerText = (Math.random() * 100).toFixed(2);
-        }
-        setInterval(updateData, 100);
-
-        // Interaction for Dropdown
+        // Interaction Logic
         const select = document.getElementById('bot-select');
-        const status = document.getElementById('bot-status');
-        
+        const statusDisplay = document.getElementById('status-display');
+
         select.addEventListener('change', (e) => {
-            status.style.color = 'var(--secondary)';
-            status.innerText = `INITIALIZING ${e.target.value.toUpperCase()} PROTOCOL...`;
+            const val = e.target.value.toUpperCase();
+            statusDisplay.innerText = `> LOADING ${val} CONFIGURATION...`;
+            
+            // Subtle "flash" effect on change
+            document.body.style.backgroundColor = '#111';
             setTimeout(() => {
-                status.innerText = `>> ${e.target.value.toUpperCase()} ONLINE <<`;
-                status.style.color = 'var(--primary)';
-            }, 1000);
+                document.body.style.backgroundColor = 'var(--deep-black)';
+                statusDisplay.innerText = `> ${val} ACTIVE`;
+            }, 200);
         });
-
-
-        /* --- THREE.JS GLOBE --- */
-        const scene = new THREE.Scene();
-        // Fog to blend globe into background
-        scene.fog = new THREE.FogExp2(0x000000, 0.002);
-
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // 1. The Main Globe (Wireframe)
-        const geometry = new THREE.IcosahedronGeometry(10, 2); // Detail level 2 for cool triangles
-        const wireframeMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0x00ff41, 
-            wireframe: true,
-            transparent: true,
-            opacity: 0.3
-        });
-        const globe = new THREE.Mesh(geometry, wireframeMaterial);
-        scene.add(globe);
-
-        // 2. The "Atmosphere" / Topographic Lines (Simulated with slightly larger geometry)
-        const geo2 = new THREE.IcosahedronGeometry(10.1, 1);
-        const mat2 = new THREE.MeshBasicMaterial({
-            color: 0x00f3ff,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.15
-        });
-        const globeAtmosphere = new THREE.Mesh(geo2, mat2);
-        scene.add(globeAtmosphere);
-
-        // 3. Particles / Debris
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 700;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 40; // Spread out
-        }
-
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const materialParticles = new THREE.PointsMaterial({
-            size: 0.05,
-            color: 0x00ff41
-        });
-        const particlesMesh = new THREE.Points(particlesGeometry, materialParticles);
-        scene.add(particlesMesh);
-
-        camera.position.z = 18;
-
-        // Animation Loop
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Rotate Globe
-            globe.rotation.y += 0.002;
-            globe.rotation.x += 0.0005;
-
-            // Rotate Atmosphere (slightly faster for parallax)
-            globeAtmosphere.rotation.y += 0.0025;
-            globeAtmosphere.rotation.x -= 0.001;
-
-            // Rotate Particles
-            particlesMesh.rotation.y -= 0.0005;
-
-            // Mouse interaction tilt (subtle)
-            // (Optional complex interaction skipped for stability, kept automatic)
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // Handle Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
     </script>
 </body>
 </html>
