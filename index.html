@@ -7,13 +7,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Palette based on the Industrial Orange reference */
-            --industrial-orange: #F4FF36; 
-            --deep-black: #080808;
-            --panel-grey: #121212;
-            --text-main: #Eaeaea;
-            --text-muted: #555;
-            --signal-beam: #ffffff;
+            /* New palette */
+            --color-dark: #1B1D22;
+            --color-teal: #8CBFC1;
+            --color-purple: #6A46CE;
+            --color-light: #D7DDE0;
+
+            /* Map old variable names to new palette */
+            --industrial-orange: var(--color-purple);
+            --deep-black: var(--color-dark);
+            --panel-grey: var(--color-dark);
+            --text-main: var(--color-light);
+            --text-muted: var(--color-teal);
+            --signal-beam: var(--color-teal);
         }
 
         * {
@@ -88,7 +94,7 @@
             grid-column: 3;
             grid-row: 1;
             background-color: var(--industrial-orange);
-            color: var(--deep-black);
+            color: var(--text-main);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -112,10 +118,10 @@
         /* The Signal Beam */
         .signal-beam-container {
             position: absolute;
-            top: 45%;
+            top: 43%;
             left: 0;
             width: 100%;
-            height: 200px; /* Space for the logo */
+            height: 280px; /* more space for larger logo */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -126,17 +132,23 @@
             position: absolute;
             width: 100%;
             height: 1px;
-            background: linear-gradient(90deg, transparent 0%, var(--signal-beam) 20%, var(--signal-beam) 80%, transparent 100%);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--signal-beam) 20%,
+                var(--signal-beam) 80%,
+                transparent 100%
+            );
+            box-shadow: 0 0 15px rgba(215, 221, 224, 0.5);
             z-index: 1;
         }
 
         /* Dragonfly SVG */
         #dragonfly-svg {
-            width: 180px;
-            height: 180px;
+            width: 280px;
+            height: 280px;
             z-index: 10;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+            filter: drop-shadow(0 0 24px rgba(215, 221, 224, 0.4));
         }
 
         /* --- TYPOGRAPHY --- */
@@ -155,7 +167,7 @@
             text-transform: uppercase;
             line-height: 0.9;
             color: var(--text-main);
-            margin-top: 100px; /* Push below logo */
+            margin-top: 70px; /* a bit lower, but still below larger logo */
             z-index: 5;
             text-align: center;
             letter-spacing: -2px;
@@ -224,7 +236,7 @@
         .sidebar-right {
             grid-column: 3;
             grid-row: 2;
-            background-color: #0c0c0c;
+            background-color: var(--deep-black);
             padding: 0;
             display: flex;
             flex-direction: column;
@@ -322,7 +334,7 @@
 
             <div style="margin-top: auto;">
                 <span class="mono-label">WARNING</span>
-                <p style="font-size: 0.7rem; color: #666; margin-top: 5px; line-height: 1.4;">
+                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px; line-height: 1.4;">
                     AUTHORIZED PERSONNEL ONLY. AUTOMATED TRADING PROTOCOLS ARE IRREVERSIBLE.
                 </p>
             </div>
@@ -336,33 +348,32 @@
                 
                 <!-- SVG DRAGONFLY LOGO -->
                 <svg id="dragonfly-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Definitions for metallic gradient -->
+                    <!-- Gradient using new palette -->
                     <defs>
                         <linearGradient id="metal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#a0a0a0;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#505050;stop-opacity:1" />
+                            <stop offset="0%" style="stop-color:#D7DDE0;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#8CBFC1;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#6A46CE;stop-opacity:1" />
                         </linearGradient>
                     </defs>
                     
-                    <!-- The Beam Cutout (Negative Space behind logo) -->
+                    <!-- Beam cutout -->
                     <circle cx="100" cy="100" r="60" fill="var(--deep-black)" />
 
-                    <!-- Geometric Body -->
                     <!-- Upper Wings -->
-                    <path d="M100 80 L160 50 L150 90 L100 95" fill="none" stroke="url(#metal-grad)" stroke-width="2" />
-                    <path d="M100 80 L40 50 L50 90 L100 95" fill="none" stroke="url(#metal-grad)" stroke-width="2" />
+                    <path d="M100 80 L160 50 L150 90 L100 95" fill="none" stroke="url(#metal-grad)" stroke-width="2.3" />
+                    <path d="M100 80 L40 50 L50 90 L100 95" fill="none" stroke="url(#metal-grad)" stroke-width="2.3" />
                     
                     <!-- Lower Wings -->
-                    <path d="M100 105 L150 140 L140 110 L100 105" fill="none" stroke="url(#metal-grad)" stroke-width="1.5" />
-                    <path d="M100 105 L50 140 L60 110 L100 105" fill="none" stroke="url(#metal-grad)" stroke-width="1.5" />
+                    <path d="M100 105 L150 140 L140 110 L100 105" fill="none" stroke="url(#metal-grad)" stroke-width="1.9" />
+                    <path d="M100 105 L50 140 L60 110 L100 105" fill="none" stroke="url(#metal-grad)" stroke-width="1.9" />
 
-                    <!-- Central Fuselage (Simple Geometric Shapes) -->
+                    <!-- Central Fuselage -->
                     <path d="M100 60 L105 80 L100 140 L95 80 Z" fill="url(#metal-grad)" />
-                    <circle cx="100" cy="55" r="5" fill="#fff" />
+                    <circle cx="100" cy="55" r="5" fill="#D7DDE0" />
                     
                     <!-- Minimalist Head Detail -->
-                    <path d="M90 50 L110 50" stroke="#fff" stroke-width="1" />
+                    <path d="M90 50 L110 50" stroke="#D7DDE0" stroke-width="1" />
                 </svg>
             </div>
 
@@ -396,9 +407,9 @@
             <div class="stat-box">
                 <span class="mono-label">NETWORK LOAD</span>
                 <div class="stat-value">48ms</div>
-                <div class="stat-change">OPTIMAL</div>
+                <div class="stat-change" style="color: var(--text-muted);">OPTIMAL</div>
             </div>
-            <div class="stat-box" style="border-bottom: none; background: #1a1a1a;">
+            <div class="stat-box" style="border-bottom: none; background: var(--deep-black);">
                 <span class="mono-label">ACTIVE NODES</span>
                 <div class="stat-value" style="color: var(--industrial-orange)">2,401</div>
             </div>
@@ -423,8 +434,8 @@
             const val = e.target.value.toUpperCase();
             statusDisplay.innerText = `> LOADING ${val} CONFIGURATION...`;
             
-            // Subtle "flash" effect on change
-            document.body.style.backgroundColor = '#111';
+            // Subtle flash effect using palette color
+            document.body.style.backgroundColor = '#6A46CE';
             setTimeout(() => {
                 document.body.style.backgroundColor = 'var(--deep-black)';
                 statusDisplay.innerText = `> ${val} ACTIVE`;
