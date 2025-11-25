@@ -5,7 +5,7 @@
   <title>Rosrch MK-1 Console</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Optional: futuristic monospace font -->
+  <!-- Futuristic mono font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -42,7 +42,7 @@
       overflow: hidden;
     }
 
-    /* Subtle CRT scanlines overlay */
+    /* CRT scanlines overlay */
     .scanlines {
       pointer-events: none;
       position: fixed;
@@ -89,7 +89,7 @@
     }
 
     .hud-frame::after {
-      /* faint diagonal “data lines” overlay like the reference images */
+      /* faint diagonal “data lines” */
       content: "";
       position: absolute;
       inset: -40%;
@@ -155,7 +155,7 @@
       align-items: stretch;
     }
 
-    /* Left + right slim side panels to echo the movie UI */
+    /* side panels */
     .side-panel {
       border: 1px solid var(--line);
       padding: 10px;
@@ -192,71 +192,80 @@
       color: var(--muted);
     }
 
+    /* center area */
     .center-panel {
       position: relative;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 18px 14px 10px;
       overflow: hidden;
+      perspective: 900px; /* for 3D globe */
     }
 
-    /* “Globe / orbital” outline inspired element */
-    .orbital {
+    /* spinning globe */
+    .globe-container {
       position: absolute;
-      width: 140%;
-      height: 140%;
-      border-radius: 50%;
-      border: 1px solid rgba(0, 255, 160, 0.35);
-      transform: translateY(8%) translateX(24%) rotate(-12deg);
-      opacity: 0.3;
-      box-shadow: 0 0 35px rgba(0, 255, 160, 0.25);
-    }
-
-    .orbital::before,
-    .orbital::after {
-      content: "";
-      position: absolute;
-      inset: 8%;
-      border-radius: 50%;
-      border: 1px solid rgba(0, 255, 120, 0.3);
-      transform: rotate(14deg);
-    }
-
-    .orbital::after {
-      inset: 16%;
-      border-color: rgba(255, 80, 50, 0.55);
-      clip-path: polygon(0 0, 100% 0, 100% 55%, 0 100%);
-    }
-
-    .grid-crosshair {
-      position: absolute;
-      inset: 8% 16%;
-      border: 1px solid rgba(0, 255, 160, 0.18);
-      border-left: none;
-      border-right: none;
-      pointer-events: none;
-    }
-
-    .grid-crosshair::before,
-    .grid-crosshair::after {
-      content: "";
-      position: absolute;
+      width: 75%;
+      max-width: 420px;
+      aspect-ratio: 1 / 1;
+      top: 50%;
       left: 50%;
-      top: 0;
-      width: 1px;
-      height: 100%;
-      background: rgba(0, 255, 160, 0.22);
+      transform: translate(-50%, -54%);
+      pointer-events: none;
+      z-index: 1;
     }
 
-    .grid-crosshair::after {
-      transform: translateX(-50%);
+    .globe {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 255, 160, 0.8);
+      box-shadow:
+        0 0 28px rgba(0, 255, 160, 0.6),
+        0 0 80px rgba(0, 0, 0, 1) inset;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.25), transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.75), transparent 65%),
+        repeating-radial-gradient(circle, rgba(0, 255, 150, 0.55) 0px, rgba(0, 255, 150, 0.55) 1px, transparent 2px, transparent 4px),
+        repeating-linear-gradient(0deg, rgba(0, 255, 150, 0.45) 0 1px, transparent 1px 5px),
+        repeating-linear-gradient(90deg, rgba(0, 255, 150, 0.45) 0 1px, transparent 1px 5px);
+      opacity: 0.38;
+      transform-style: preserve-3d;
+      animation: globe-spin 40s linear infinite;
+      mix-blend-mode: screen;
+    }
+
+    .globe::before {
+      /* “continents” style irregular highlight */
+      content: "";
+      position: absolute;
+      inset: 16%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 20% 40%, rgba(0, 255, 150, 0.5), transparent 55%),
+        radial-gradient(circle at 75% 30%, rgba(255, 80, 50, 0.5), transparent 60%);
+      mix-blend-mode: screen;
+      opacity: 0.7;
+    }
+
+    @keyframes globe-spin {
+      from { transform: rotateY(0deg) rotateZ(-6deg); }
+      to   { transform: rotateY(360deg) rotateZ(-6deg); }
+    }
+
+    /* content layered above globe */
+    .center-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .hud-title {
-      position: relative;
       font-size: clamp(2rem, 3vw, 2.6rem);
       letter-spacing: 0.32em;
       text-transform: uppercase;
@@ -314,6 +323,10 @@
       color: var(--text-soft);
     }
 
+    .select-wrap {
+      position: relative;
+    }
+
     select {
       width: 100%;
       padding: 8px 10px;
@@ -328,10 +341,6 @@
       appearance: none;
       position: relative;
       box-shadow: 0 0 9px rgba(0, 255, 160, 0.5);
-    }
-
-    .select-wrap {
-      position: relative;
     }
 
     .select-wrap::after {
@@ -402,7 +411,6 @@
       color: var(--neon-soft);
     }
 
-    /* Responsive tweaks */
     @media (max-width: 900px) {
       .hud-main {
         grid-template-columns: 1fr;
@@ -444,7 +452,7 @@
           <div class="side-grid">
             <div class="side-label">CHAIN</div><div>SOLANA</div>
             <div class="side-label">LINK</div><div>ONLINE</div>
-            <div class="side-label">LAT</div><div>00.042 ms</div>
+            <div class="side-label">LAT</div><div>00.042 MS</div>
             <div class="side-label">SYNC</div><div>99.993%</div>
           </div>
         </div>
@@ -466,33 +474,36 @@
 
       <!-- CENTER PANEL -->
       <main class="center-panel">
-        <div class="orbital"></div>
-        <div class="grid-crosshair"></div>
+        <div class="globe-container">
+          <div class="globe"></div>
+        </div>
 
-        <h1 class="hud-title">Rosrch MK-1</h1>
-        <p class="subtitle">Autonomous Solana operations console</p>
+        <div class="center-content">
+          <h1 class="hud-title">Rosrch MK-1</h1>
+          <p class="subtitle">Autonomous Solana operations console</p>
 
-        <section class="selector-block">
-          <label for="bot-select">Primary bot configuration</label>
+          <section class="selector-block">
+            <label for="bot-select">Primary bot configuration</label>
 
-          <div class="select-wrap">
-            <select id="bot-select">
-              <option value="SNIPER">Sniper bot</option>
-              <option value="BUY">Buy bot</option>
-              <option value="BOOTER">Booter bot</option>
-            </select>
-          </div>
+            <div class="select-wrap">
+              <select id="bot-select">
+                <option value="SNIPER">Sniper bot</option>
+                <option value="BUY">Buy bot</option>
+                <option value="BOOTER">Booter bot</option>
+              </select>
+            </div>
 
-          <div class="selector-meta">
-            <span>EST. EARTH RELATIVE</span>
-            <span class="mode-pill" id="mode-pill">MODE: SNIPER</span>
-          </div>
+            <div class="selector-meta">
+              <span>EST. EARTH RELATIVE</span>
+              <span class="mode-pill" id="mode-pill">MODE: SNIPER</span>
+            </div>
 
-          <div class="alert">
-            <span class="tag">NOT LIVE</span>
-            <span class="text">interface mockup &mdash; deepnav precision disabled.</span>
-          </div>
-        </section>
+            <div class="alert">
+              <span class="tag">NOT LIVE</span>
+              <span class="text">Interface mockup &mdash; deepnav precision disabled.</span>
+            </div>
+          </section>
+        </div>
       </main>
 
       <!-- RIGHT PANEL -->
@@ -515,12 +526,12 @@
 
     <div class="footer-bar">
       <div>COMM LOG &gt;&gt; <span class="key">/rosrch/mk1</span></div>
-      <div>BUILD 0x01 • VISUAL ONLY • NO TX SIGNATURES</div>
+      <div>BUILD 0x01 &bull; VISUAL ONLY &bull; NO TX SIGNATURES</div>
     </div>
   </div>
 
   <script>
-    // Simple JS: update labels when a bot is selected
+    // update labels when a bot is selected
     const select = document.getElementById("bot-select");
     const modePill = document.getElementById("mode-pill");
     const sideMode = document.getElementById("side-mode");
