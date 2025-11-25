@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOLANA // INDUSTRIAL AUTOMATION</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>ROSRCH // BRUTALIST</title>
+    <!-- Using Archivo for that heavy, industrial sans-serif look -->
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --industrial-orange: #7FFF00; 
-            --deep-black: #080808;
-            --panel-grey: #FF1493;
-            --text-main: #Eaeaea;
-            --text-muted: #555;
-            --signal-beam: #ffffff;
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --accent-color: #ffffff; /* Monochromatic brutalism */
+            --border-width: 2px;
+            --bar-size: 80px; /* Thickness of the edge bars */
         }
 
         * {
@@ -23,575 +22,339 @@
         }
 
         body {
-            background-color: var(--deep-black);
-            color: var(--text-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: 'Archivo', sans-serif;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            /* Grid layout to create the "frame" */
+            grid-template-columns: var(--bar-size) 1fr var(--bar-size);
+            grid-template-rows: var(--bar-size) 1fr var(--bar-size);
+            grid-template-areas: 
+                "top top top"
+                "left center right"
+                "bottom bottom bottom";
         }
 
-        /* --- NOISE TEXTURE OVERLAY --- */
-        .noise-overlay {
+        /* --- BACKGROUND GIF LAYER --- */
+        #bg-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            opacity: 0.05;
-            z-index: 999;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: -1; /* Behind everything */
+            background: #111; /* Fallback color */
         }
 
-        /* --- LAYOUT GRID --- */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 250px 1fr 300px;
-            grid-template-rows: 80px 1fr 60px;
-            height: 100%;
+        #bg-image {
             width: 100%;
-            border: 10px solid var(--deep-black);
-            gap: 2px;
-            background-color: var(--panel-grey);
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6; /* Slight transparency to make text readable */
+            filter: grayscale(100%) contrast(1.2); /* Brutalist touch: grayscale high contrast */
         }
 
-        .panel {
-            background-color: var(--deep-black);
-            padding: 20px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- HEADER SECTION --- */
-        .header-left {
-            grid-column: 1;
-            grid-row: 1;
-            border-bottom: 2px solid var(--industrial-orange);
-            justify-content: center;
-        }
-
-        .header-main {
-            grid-column: 2;
-            grid-row: 1;
-            border-bottom: 2px solid var(--text-muted);
+        /* --- UI BORDERS / BARS --- */
+        
+        /* Shared styles for UI bars */
+        .ui-bar {
+            background: rgba(0, 0, 0, 0.85); /* Solid backing */
+            backdrop-filter: blur(10px);
+            border: var(--border-width) solid var(--text-color);
             display: flex;
             align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        /* TOP BAR: Title */
+        .top-bar {
+            grid-area: top;
+            border-bottom: none; /* Merge borders visually */
             justify-content: space-between;
             padding: 0 40px;
-            z-index: 10; /* Above 3D canvas if needed */
         }
-
-        .header-right {
-            grid-column: 3;
-            grid-row: 1;
-            background-color: var(--industrial-orange);
-            color: var(--deep-black);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        .brand {
             font-weight: 900;
             font-size: 2rem;
-            letter-spacing: -1px;
+            letter-spacing: -2px;
+            text-transform: uppercase;
         }
 
-        /* --- CENTER STAGE (3D Viewport) --- */
-        .stage-center {
-            grid-column: 2;
-            grid-row: 2;
-            position: relative;
+        .version {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            border: 1px solid var(--text-color);
+            padding: 5px 10px;
+        }
+
+        /* LEFT BAR: Vertical Navigation */
+        .left-bar {
+            grid-area: left;
+            border-right: none;
+            border-top: none;
+            border-bottom: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 40px;
+            gap: 40px;
+        }
+
+        .nav-item {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            letter-spacing: 2px;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            opacity: 1;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* RIGHT BAR: Status Indicators */
+        .right-bar {
+            grid-area: right;
+            border-left: none;
+            border-top: none;
+            border-bottom: none;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 40px;
+            gap: 20px;
+        }
+
+        .status-block {
+            writing-mode: vertical-rl; /* Vertical text */
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-color);
+            display: block;
+        }
+
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+
+        /* BOTTOM BAR: Controls */
+        .bottom-bar {
+            grid-area: bottom;
+            border-top: none;
+            display: flex;
+            justify-content: space-between;
+            padding: 0;
+        }
+
+        .control-section {
+            flex: 1;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            overflow: hidden;
-            /* Ensure the canvas sits behind content */
-        }
-
-        #dragonfly-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1; /* Background */
-            opacity: 0.9;
-        }
-
-        /* The Signal Beam - Made thinner to not obstruct 3D model */
-        .signal-beam-container {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .signal-line {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 20%, rgba(255, 255, 255, 0.3) 80%, transparent 100%);
-        }
-
-        /* --- CENTER UI OVERLAY --- */
-        .center-ui-layer {
+            border-right: var(--border-width) solid var(--text-color);
             position: relative;
-            z-index: 10; /* Float above 3D model */
-            text-align: center;
-            margin-top: 20px; /* Push down to reveal model */
-            pointer-events: none; /* Let clicks pass through empty space */
+        }
+        
+        .control-section:last-child {
+            border-right: none;
         }
 
-        .heavy-title {
-            font-size: 4rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            line-height: 0.9;
-            color: var(--text-main);
-            margin-bottom: 20px;
-            letter-spacing: -2px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8); /* Shadow for readability */
-        }
-
-        .control-wrapper {
-            pointer-events: auto; /* Re-enable clicks for buttons */
-            display: inline-block;
-            width: 320px;
-            text-align: left;
-        }
-
-        .industrial-select-wrap {
-            position: relative;
-            background: rgba(18, 18, 18, 0.8); /* Semi-transparent */
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--text-muted);
-        }
-
-        .industrial-select {
-            width: 100%;
+        /* Dropdown Styling - Brutalist */
+        select {
+            appearance: none;
             background: transparent;
             border: none;
-            color: var(--text-main);
-            padding: 20px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
+            color: var(--text-color);
+            font-family: 'Archivo', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
             text-transform: uppercase;
-            appearance: none;
+            width: 100%;
+            height: 100%;
+            text-align: center;
             cursor: pointer;
             outline: none;
         }
 
-        .industrial-select:focus {
-            border: 1px solid var(--industrial-orange);
+        select:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
         }
 
-        .select-corner {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 0 0 15px 15px;
-            border-color: transparent transparent var(--industrial-orange) transparent;
-            pointer-events: none;
+        option {
+            background: #000;
+            color: #fff;
         }
 
-        /* --- TYPOGRAPHY & SIDEBARS --- */
-        .brand-text {
+        /* Button Styling - Brutalist */
+        button {
+            width: 100%;
+            height: 100%;
+            background: var(--text-color);
+            color: var(--bg-color);
+            border: none;
             font-family: 'Archivo', sans-serif;
-            text-transform: uppercase;
             font-weight: 900;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            color: var(--industrial-orange);
-        }
-
-        .mono-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--text-muted);
+            font-size: 1.5rem;
             text-transform: uppercase;
-            margin-bottom: 5px;
-            display: block;
+            cursor: pointer;
+            transition: all 0.1s;
         }
 
-        .sidebar-left {
-            grid-column: 1;
-            grid-row: 2;
-            padding: 40px 20px;
-            border-right: 1px dashed var(--text-muted);
-            z-index: 10;
+        button:hover {
+            background: transparent;
+            color: var(--text-color);
         }
 
-        .sidebar-right {
-            grid-column: 3;
-            grid-row: 2;
-            background-color: #0c0c0c;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
+        button:active {
+            transform: scale(0.98);
         }
 
-        .stat-box {
-            border-bottom: 1px solid var(--text-muted);
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .stat-change {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--industrial-orange);
-            font-size: 0.8rem;
-        }
-
-        .footer-bar {
-            grid-column: 1 / span 3;
-            grid-row: 3;
-            background-color: var(--text-main);
-            color: var(--deep-black);
+        /* --- CENTER DISPLAY (Feedback) --- */
+        .center-feedback {
+            grid-area: center;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            text-transform: uppercase;
-            z-index: 20;
+            justify-content: center;
+            pointer-events: none; /* Let clicks pass through to background if needed */
         }
 
-        /* --- ANIMATIONS --- */
-        .blink { animation: blinker 2s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-        .scrolling-text { white-space: nowrap; overflow: hidden; width: 100%; }
+        #main-status {
+            font-family: 'Archivo', sans-serif;
+            font-size: 6vw;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--text-color); /* Outline text */
+            opacity: 0.3;
+            text-align: center;
+            line-height: 0.9;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            :root { --bar-size: 60px; }
+            .brand { font-size: 1.2rem; }
+            select, button { font-size: 1rem; }
+        }
 
     </style>
 </head>
 <body>
 
-    <div class="noise-overlay"></div>
+    <!-- BACKGROUND CONTAINER -->
+    <div id="bg-container">
+        <!-- 
+            ================================================================
+            PASTE YOUR GIF FILE NAME IN THE 'src' ATTRIBUTE BELOW 
+            Example: src="my-animation.gif"
+            ================================================================
+        -->
+        <img id="bg-image" src="https://media.giphy.com/media/TrO4p6G5Z9oW/giphy.gif" alt="Background">
+    </div>
 
-    <div class="main-grid">
+    <!-- TOP BAR -->
+    <div class="ui-bar top-bar">
+        <div class="brand">ROSRCH MK-1</div>
+        <div class="version">BUILD 9.4</div>
+    </div>
+
+    <!-- LEFT BAR -->
+    <div class="ui-bar left-bar">
+        <div class="nav-item active">DASHBOARD</div>
+        <div class="nav-item">SETTINGS</div>
+        <div class="nav-item">LOGS</div>
+        <div class="nav-item">WALLET</div>
+    </div>
+
+    <!-- CENTER FEEDBACK AREA -->
+    <div class="center-feedback">
+        <div id="main-status">SYSTEM<br>READY</div>
+    </div>
+
+    <!-- RIGHT BAR -->
+    <div class="ui-bar right-bar">
+        <div class="status-block">
+            <span>PING: 24MS</span>
+            <span class="status-dot"></span>
+        </div>
+        <div class="status-block">
+            <span>NET: SOL</span>
+            <span class="status-dot"></span>
+        </div>
+        <div class="status-block">
+            <span class="blink">LIVE</span>
+            <span class="status-dot blink" style="background: red;"></span>
+        </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="ui-bar bottom-bar">
         
-        <!-- HEADER -->
-        <div class="panel header-left">
-            <span class="brand-text">SOLANA // AUTO</span>
-        </div>
-        <div class="panel header-main">
-            <span class="mono-label">System Status: <span style="color: var(--industrial-orange)">ONLINE</span></span>
-            <div style="display: flex; gap: 5px;">
-                <div style="width: 10px; height: 10px; background: var(--text-muted);"></div>
-                <div style="width: 10px; height: 10px; background: var(--text-muted);"></div>
-                <div style="width: 10px; height: 10px; background: var(--industrial-orange);"></div>
-            </div>
-        </div>
-        <div class="header-right">V 1.3</div>
-
-        <!-- LEFT SIDEBAR -->
-        <div class="panel sidebar-left">
-            <div style="margin-bottom: 40px;">
-                <span class="mono-label">INITIATIVE</span>
-                <h3 style="font-size: 1.5rem; line-height: 1.1;">URBAN<br>ROBOTICS<br>INITIATIVE</h3>
-            </div>
-            <div style="margin-bottom: 40px;">
-                <span class="mono-label">TARGET CHAIN</span>
-                <h3 style="font-size: 1.5rem; color: var(--industrial-orange)">SOLANA</h3>
-            </div>
-            <div style="margin-top: auto;">
-                <span class="mono-label">WARNING</span>
-                <p style="font-size: 0.7rem; color: #666; margin-top: 5px; line-height: 1.4;">
-                    AUTHORIZED PERSONNEL ONLY. AUTOMATED TRADING PROTOCOLS ARE IRREVERSIBLE.
-                </p>
-            </div>
+        <!-- Selection Area -->
+        <div class="control-section" style="flex: 2;">
+            <select id="bot-select">
+                <option value="sniper">SNIPER PROTOCOL</option>
+                <option value="booter">BOOTER PROTOCOL</option>
+                <option value="monitor">PASSIVE MONITOR</option>
+                <option value="market">MARKET MAKER</option>
+            </select>
         </div>
 
-        <!-- CENTER STAGE (3D + UI) -->
-        <div class="panel stage-center" id="stage-center">
-            
-            <!-- 3D Canvas Container -->
-            <div id="dragonfly-canvas"></div>
-
-            <!-- Subtle Signal Line -->
-            <div class="signal-beam-container">
-                <div class="signal-line"></div>
-            </div>
-
-            <!-- Foreground UI -->
-            <div class="center-ui-layer">
-                <h1 class="heavy-title">SOL</h1>
-
-                <div class="control-wrapper">
-                    <span class="mono-label" style="margin-bottom: 10px;">SELECT PROTOCOL</span>
-                    <div class="industrial-select-wrap">
-                        <select class="industrial-select" id="bot-select">
-                            <option value="sniper">SNIPER BOT [V.09]</option>
-                            <option value="buy">BUY BOT [MARKET]</option>
-                            <option value="booter">BOOTER BOT [OFFENSE]</option>
-                            <option value="monitor">MONITOR [PASSIVE]</option>
-                        </select>
-                        <div class="select-corner"></div>
-                    </div>
-                    <div id="status-display" style="margin-top: 15px; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--industrial-orange); height: 20px;">
-                        > SYSTEM IDLE
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT SIDEBAR -->
-        <div class="panel sidebar-right">
-            <div class="stat-box">
-                <span class="mono-label">SOL / USD</span>
-                <div class="stat-value">142.05</div>
-                <div class="stat-change blink">▲ 4.2%</div>
-            </div>
-            <div class="stat-box">
-                <span class="mono-label">NETWORK LOAD</span>
-                <div class="stat-value">48ms</div>
-                <div class="stat-change">OPTIMAL</div>
-            </div>
-            <div class="stat-box" style="border-bottom: none; background: #1a1a1a;">
-                <span class="mono-label">ACTIVE NODES</span>
-                <div class="stat-value" style="color: var(--industrial-orange)">2,401</div>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="footer-bar">
-            <span>FIELD TESTED // UNIT 884</span>
-            <span class="scrolling-text" style="width: 300px; text-align: right;">
-                AUTOMATE THE WORK THAT BUILT THE NETWORK ///////
-            </span>
+        <!-- Action Button -->
+        <div class="control-section" style="flex: 1;">
+            <button id="run-btn">INITIALIZE</button>
         </div>
 
     </div>
 
     <script>
-        // --- THREE.JS DRAGONFLY IMPLEMENTATION ---
-        
-        const container = document.getElementById('dragonfly-canvas');
-        const scene = new THREE.Scene();
-        
-        // Camera setup
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.z = 12;
-        camera.position.y = 1;
-
-        // Renderer
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        container.appendChild(renderer.domElement);
-
-        // --- LIGHTING FOR IRIDESCENCE ---
-        // We use multiple colored lights to create the iridescent reflection on the metallic surface
-        const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
-        scene.add(ambientLight);
-
-        const pointLight1 = new THREE.PointLight(0x00ffff, 2, 20); // Cyan
-        pointLight1.position.set(5, 5, 5);
-        scene.add(pointLight1);
-
-        const pointLight2 = new THREE.PointLight(0xff00ff, 2, 20); // Magenta
-        pointLight2.position.set(-5, -5, 5);
-        scene.add(pointLight2);
-
-        const pointLight3 = new THREE.PointLight(0x00ff00, 2, 20); // Green
-        pointLight3.position.set(0, 5, -5);
-        scene.add(pointLight3);
-        
-        const sunLight = new THREE.DirectionalLight(0xffffff, 2);
-        sunLight.position.set(0, 10, 10);
-        scene.add(sunLight);
-
-
-        // --- DRAGONFLY GROUP ---
-        const dragonflyGroup = new THREE.Group();
-        
-        // Material: Iridescent Metal
-        const bodyMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x111111,        // Dark base
-            metalness: 1.0,         // Fully metallic
-            roughness: 0.2,         // Smooth polish
-            clearcoat: 1.0,         // Glassy coating
-            clearcoatRoughness: 0.1,
-            reflectivity: 1.0,
-            iridescence: 1.0,
-            iridescenceIOR: 1.8,    // Index of refraction for thin film
-            iridescenceThicknessRange: [100, 400]
-        });
-        
-        // Wing Material: Semi-transparent geometric grid or glass
-        const wingMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            metalness: 0.5,
-            roughness: 0.0,
-            transmission: 0.6,  // Glass-like
-            thickness: 0.5,
-            clearcoat: 1.0,
-            side: THREE.DoubleSide,
-            iridescence: 1.0,
-            iridescenceIOR: 2.3
-        });
-
-
-        // 1. Thorax (Center Body) - Icosahedron for geometric look
-        const thoraxGeo = new THREE.IcosahedronGeometry(0.8, 0);
-        const thorax = new THREE.Mesh(thoraxGeo, bodyMaterial);
-        thorax.scale.set(0.8, 1, 1.5);
-        dragonflyGroup.add(thorax);
-
-        // 2. Head
-        const headGeo = new THREE.IcosahedronGeometry(0.6, 0);
-        const head = new THREE.Mesh(headGeo, bodyMaterial);
-        head.position.z = 1.6;
-        dragonflyGroup.add(head);
-
-        // Eyes (Small spheres on head)
-        const eyeGeo = new THREE.IcosahedronGeometry(0.25, 1);
-        const eyeL = new THREE.Mesh(eyeGeo, bodyMaterial);
-        eyeL.position.set(0.35, 0.2, 1.8);
-        dragonflyGroup.add(eyeL);
-        
-        const eyeR = new THREE.Mesh(eyeGeo, bodyMaterial);
-        eyeR.position.set(-0.35, 0.2, 1.8);
-        dragonflyGroup.add(eyeR);
-
-        // 3. Tail (Long segmented geometric cone)
-        // We make it out of multiple cones/cylinders for segmentation
-        for(let i=0; i<6; i++) {
-            const size = 0.5 - (i * 0.07);
-            const segGeo = new THREE.CylinderGeometry(size, size*0.6, 1.2, 6);
-            const segment = new THREE.Mesh(segGeo, bodyMaterial);
-            segment.rotation.x = Math.PI / 2;
-            segment.position.z = -1 - (i * 1.0);
-            dragonflyGroup.add(segment);
-        }
-
-        // 4. Wings (Geometrical Planes)
-        // Helper function to create a wing shape
-        function createWing(width, length, xPos, zPos, angle) {
-            // Using a flattened box for thickness, or a shape
-            const shape = new THREE.Shape();
-            shape.moveTo(0, 0);
-            shape.lineTo(width/2, length/2);
-            shape.lineTo(0, length);
-            shape.lineTo(-width/2, length/2);
-            shape.lineTo(0, 0);
-
-            const extrudeSettings = { depth: 0.02, bevelEnabled: true, bevelSegments: 1, bevelSize: 0.01, bevelThickness: 0.01 };
-            const geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-            
-            // Center pivot
-            geometry.translate(0, -length/10, 0); // Offset
-
-            const wing = new THREE.Mesh(geometry, wingMaterial);
-            
-            // Initial positioning
-            wing.rotation.x = -Math.PI / 2; // Lay flat
-            wing.rotation.z = angle;        // Angle outwards
-            
-            // Group for pivot point (shoulder)
-            const pivot = new THREE.Group();
-            pivot.add(wing);
-            pivot.position.set(xPos, 0.5, zPos);
-            
-            // Rotate wing relative to pivot (to angle it back)
-            wing.position.y = 0;
-            wing.rotation.z = angle;
-            
-            return { mesh: wing, pivot: pivot };
-        }
-
-        // Front Wings
-        const fwL = createWing(1.2, 5, 0.5, 0.5, -Math.PI/4);
-        const fwR = createWing(1.2, 5, -0.5, 0.5, Math.PI/4); // Mirror angle logic handled in update
-        // Fix rotations manually for symmetry
-        fwL.mesh.rotation.z = -Math.PI / 3;
-        fwR.mesh.rotation.z = Math.PI / 3;
-
-        // Back Wings
-        const bwL = createWing(1.0, 4, 0.5, -0.2, -Math.PI/3);
-        const bwR = createWing(1.0, 4, -0.5, -0.2, Math.PI/3);
-        bwL.mesh.rotation.z = -Math.PI / 2.5;
-        bwR.mesh.rotation.z = Math.PI / 2.5;
-
-        dragonflyGroup.add(fwL.pivot);
-        dragonflyGroup.add(fwR.pivot);
-        dragonflyGroup.add(bwL.pivot);
-        dragonflyGroup.add(bwR.pivot);
-
-        // Tilt the whole dragonfly slightly up (hero pose)
-        dragonflyGroup.rotation.x = -Math.PI / 6;
-        
-        scene.add(dragonflyGroup);
-
-        // --- ANIMATION ---
-        let time = 0;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.05;
-
-            // 1. Spin the dragonfly slowly on Y Axis (as requested)
-            dragonflyGroup.rotation.y += 0.005;
-
-            // 2. Hover motion (Sine wave on Y position)
-            dragonflyGroup.position.y = Math.sin(time * 0.5) * 0.2;
-
-            // 3. Subtle Wing Flutter (Very slow to look majestic/robotic)
-            // Rotate around the local X axis of the pivot
-            const flutter = Math.sin(time * 20) * 0.05; 
-            
-            fwL.pivot.rotation.z = flutter;
-            fwR.pivot.rotation.z = -flutter;
-            bwL.pivot.rotation.z = -flutter; // Alternate
-            bwR.pivot.rotation.z = flutter;
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // Handle Resize
-        window.addEventListener('resize', () => {
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-        });
-
-
-        // --- UI LOGIC (Dropdown) ---
         const select = document.getElementById('bot-select');
-        const statusDisplay = document.getElementById('status-display');
+        const runBtn = document.getElementById('run-btn');
+        const mainStatus = document.getElementById('main-status');
 
+        // Update big text on hover/change
         select.addEventListener('change', (e) => {
-            const val = e.target.value.toUpperCase();
-            statusDisplay.innerText = `> LOADING ${val} CONFIGURATION...`;
-            document.body.style.backgroundColor = '#111';
-            setTimeout(() => {
-                document.body.style.backgroundColor = 'var(--deep-black)';
-                statusDisplay.innerText = `> ${val} ACTIVE`;
-            }, 200);
+            mainStatus.innerHTML = e.target.value.toUpperCase() + '<br>SELECTED';
         });
 
+        // Button Action
+        runBtn.addEventListener('click', () => {
+            const originalText = runBtn.innerText;
+            const selectedBot = select.value.toUpperCase();
+            
+            // UI Feedback
+            runBtn.innerText = "EXECUTING...";
+            mainStatus.style.opacity = "1";
+            mainStatus.style.color = "#fff"; // Fill the outline text
+            mainStatus.innerHTML = "LAUNCHING<br>" + selectedBot;
+            
+            // Simulate Process
+            setTimeout(() => {
+                runBtn.innerText = originalText;
+                mainStatus.style.opacity = "0.3";
+                mainStatus.style.color = "transparent"; // Return to outline
+                mainStatus.innerHTML = selectedBot + "<br>ACTIVE";
+            }, 2000);
+        });
     </script>
 </body>
 </html>
